@@ -363,7 +363,6 @@ class PtPassTime:
     def _run_brute_force(self) -> None:
         total_len = len(self.args.password)
         known = ""
-        discovered: list[tuple[int, str, float]] = []
         not_json = not self.args.json
         W = 8
 
@@ -427,7 +426,6 @@ class PtPassTime:
                     best_char = char
 
             known += best_char
-            discovered.append((position, best_char, best_median))
 
             if not_json:
                 pos_label = f"Position {position + 1:>{len(str(total_len))}}/{total_len}"
@@ -448,7 +446,7 @@ class PtPassTime:
                 condition=True, colortext=True,
             )
 
-        self._emit_json_bruteforce(known, discovered, matches)
+        self._emit_json_bruteforce(known, matches)
 
     def _emit_json_detection(
         self,
@@ -499,7 +497,6 @@ class PtPassTime:
     def _emit_json_bruteforce(
         self,
         recovered: str,
-        discovered: list[tuple[int, str, float]],
         matches: bool,
     ) -> None:
         if matches:
@@ -512,14 +509,6 @@ class PtPassTime:
                 "url": self.spec.url,
                 "recoveredPassword": recovered,
                 "matchesSuppliedPassword": matches,
-                "positions": [
-                    {
-                        "position": position + 1,
-                        "character": char,
-                        "medianMs": round(median_ms, 3),
-                    }
-                    for position, char, median_ms in discovered
-                ],
             }
         )
         self.ptjsonlib.set_status("finished")
